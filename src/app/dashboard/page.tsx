@@ -1,5 +1,5 @@
 import React from 'react'
-import FinishAssignment from '@/component/dashboard/finishAssignment'
+import FinishAssignment from '@/component/dashboard/FinishAssignment'
 
 const Dashboard = () => {
   return (
@@ -15,9 +15,13 @@ const Dashboard = () => {
         <div className='mt-10 '>
           <div className='flex gap-8'>
             {/* one */}
-            <div className="basis-1/4 max-h-[220px] rounded-lg border border-gray-200 shadow-lg p-4">Box 1</div>
+            <div className="basis-1/4 max-h-[220px] rounded-lg border border-gray-200 shadow-lg p-4">
+              <FinishAssignment/>
+            </div>
             {/* two */}
-            <div className="basis-2/4 h-[220px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto">Box 2</div>
+            <div className="basis-2/4 h-[220px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto">
+              
+            </div>
             {/* three */}
             <div className="basis-1/4 max-h-[220px] rounded-lg border border-gray-200 shadow-lg p-4">Box 3</div>
           </div>
