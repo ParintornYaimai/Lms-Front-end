@@ -1,5 +1,6 @@
 import React from 'react'
 import FinishAssignment from '@/component/dashboard/FinishAssignment'
+import Resource from '@/component/dashboard/Resource'
 
 const Dashboard = () => {
   return (
@@ -20,7 +21,7 @@ const Dashboard = () => {
             </div>
             {/* two */}
             <div className="basis-2/4 h-[220px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto">
-              
+              <Resource/>
             </div>
             {/* three */}
             <div className="basis-1/4 max-h-[220px] rounded-lg border border-gray-200 shadow-lg p-4">Box 3</div>
