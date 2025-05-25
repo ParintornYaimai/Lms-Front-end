@@ -1,0 +1,78 @@
+.react-calendar {
+  width: 50%;          
+  max-height: 100%;    
+  font-size: 0.7rem;    
+  border: none;
+}
+
+.react-calendar__navigation {
+  display: flex;
+  justify-content: center; 
+  align-items: center;                      
+  font-size: 0.8rem;         
+  height: 30px;                 
+}
+
+
+.react-calendar__navigation button {
+  flex: none;                    
+  padding: 2px 8px;              
+  min-width: 24px;              
+  height: 28px;
+  font-size: 0.9rem;
+
+}
+
+.react-calendar__month-view__weekdays {
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: #bdbdbd;
+}
+
+.react-calendar__tile {
+  padding: 5px 0;       
+  font-size: 0.75rem;
+}
+
+.react-calendar__tile--now {
+  font-weight: 700;
+}
+
+.react-calendar__tile--active {
+  background: orangered;   
+  color: white;          
+  border-radius: 100%;    
+  font-weight: bold;
+}
+
+.react-calendar__navigation__prev2-button,
+.react-calendar__navigation__next2-button {
+  display: none;
+}
+
+.react-calendar__navigation__label {
+  color: orangered;
+  font-weight: bold;
+  cursor: default;
+}
+.react-calendar__year-view .react-calendar__tile {
+  font-size: 0.75rem;
+  padding: 10px 0;
+}
+
+.react-calendar__decade-view .react-calendar__tile {
+  font-size: 0.75rem;
+  padding: 8px 0;
+}
+
+/* ถ้าต้องการบังคับความกว้างรวมของปฏิทินช่วงมุมมองเดือน/ปี */
+.react-calendar__year-view,
+.react-calendar__decade-view {
+  max-width: 100%;
+}
+
+/* ลดจำนวนคอลัมน์ลง ถ้าคุณอยากให้ไม่แสดงกว้างเกินไป (เลือกได้) */
+.react-calendar__year-view .react-calendar__tile,
+.react-calendar__decade-view .react-calendar__tile {
+  width: 25%; /* จาก 33% เป็น 25% = แสดง 4 คอลัมน์ แทน 3 คอลัมน์ */
+}
