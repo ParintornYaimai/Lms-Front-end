@@ -5,6 +5,8 @@ import MiniCalendar from '@/component/dashboard/MiniCalendar'
 import BarChartComponent from '@/component/dashboard/BarChart'
 import TaskProgress from '@/component/dashboard/TaskProgress'
 import TodoList from '@/component/dashboard/Todolist'
+import Recent from '@/component/dashboard/Recent'
+import UpComing from '@/component/dashboard/UpComing'
 
 
 const Dashboard = () => {
@@ -29,7 +31,7 @@ const Dashboard = () => {
               <Resource/>
             </div>
             {/* three */}
-            <div className="basis-1/4 max-h-[220px] rounded-lg border border-gray-200 shadow-lg hover:scale-101 transition-transform duration-300">
+            <div className="basis-1/6 max-h-[220px] rounded-lg border border-gray-200 shadow-lg hover:scale-101 transition-transform duration-300">
               <MiniCalendar/>
             </div>
           </div>
@@ -38,15 +40,15 @@ const Dashboard = () => {
         <div className='mt-10'>
           <div className='flex gap-8'>
             {/* one */}
-            <div className="flex-1 max-h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 hover:scale-101 transition-transform duration-300">
+            <div className="basis-2/4 max-h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 hover:scale-101 transition-transform duration-300">
               <BarChartComponent/>
             </div>
             {/* two */}
-            <div className="flex-1 h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto hover:scale-101 transition-transform duration-300">
+            <div className="basis-1/4 h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto hover:scale-101 transition-transform duration-300">
               <TaskProgress/>
             </div>
             {/* three */}
-            <div className="flex-1 max-h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 hover:scale-101 transition-transform duration-300">
+            <div className="basis-1/3 max-h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 hover:scale-101 transition-transform duration-300">
               <TodoList/>
             </div>
           </div>
@@ -55,10 +57,13 @@ const Dashboard = () => {
         <div className='my-10 mx-10'>
           <div className='flex gap-8'>
             {/* one */}
-            <div className="basis-full md:basis-2/4 h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 hover:scale-101 transition-transform duration-300">Box 1</div>
+            <div className="basis-full md:basis-2/4 h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 hover:scale-101 transition-transform duration-300">
+              <Recent/>
+            </div>
             {/* two */}
-            <div className="basis-full md:basis-2/4 h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto hover:scale-101 transition-transform duration-300">Box 2</div>
-            {/* three */}
+            <div className="basis-full md:basis-2/4 h-[300px] rounded-lg border border-gray-200 shadow-lg p-4 overflow-auto hover:scale-101 transition-transform duration-300">
+              <UpComing/>
+            </div>
           </div>
         </div>
 
