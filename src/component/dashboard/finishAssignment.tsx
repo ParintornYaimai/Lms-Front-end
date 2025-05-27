@@ -6,7 +6,7 @@ import { MdOutlineAssignmentTurnedIn } from "react-icons/md";
 const FinishAssignment = () => {
   return (
     <div className='h-full'>
-      <h1 className='text-xl mx-2'>Finish Assignments</h1>
+      <h1 className='text-xl font-bold mx-2'>Finish Assignments</h1>
       <div>
         <div className='border border-gray-200 rounded-lg md:my-7  p-2'>
           <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl shadow-sm m-2">
