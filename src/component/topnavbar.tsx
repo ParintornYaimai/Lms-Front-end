@@ -51,9 +51,11 @@ const TopNavbar  = () => {
         </div>
 
         {/* detail */}
-        <div className='flex items-center gap-3'>
-          <div>
+        <div className='flex items-center gap-3 relative'>
+          <div className="relative">
             <IoNotificationsOutline size={40} className='border p-2 rounded-xl border-gray-300  cursor-pointer' />
+            {/* Red Dot */}
+            <span className="absolute top-2 right-2 w-3 h-3 bg-red-600 rounded-full border-2 border-white"></span>
           </div>
 
           {/* account pic */}
