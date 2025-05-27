@@ -50,8 +50,8 @@ const BarChartComponent = () => {
           type: 'category',
           data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             axisLabel: {
-                interval: 0,  // แสดงทุก label
-                rotate: 0,    // หมุน label ถ้าต้องการ (เช่น 45 องศา เพื่อไม่ให้ทับกัน)
+              interval: 0,  // แสดงทุก label
+              rotate: 0,    // หมุน label ถ้าต้องการ (เช่น 45 องศา เพื่อไม่ให้ทับกัน)
             },
         },
         yAxis: {
@@ -77,9 +77,9 @@ const BarChartComponent = () => {
             name: 'Study',
             type: 'bar',
             stack: 'total',
-             barWidth: 15, 
+             barWidth: 25, 
             itemStyle: {
-              color: '#f97316',
+              color: '#ea580c',
               borderRadius: [0, 0, 5, 5], // ขอบโค้งด้านล่าง
             },
             data: [35, 20, 55, 35, 10, 40, 25, 30, 45, 50, 60, 70],
@@ -111,8 +111,8 @@ const BarChartComponent = () => {
 
   return(
     <>
-        <div>
-            <h1 className='text-2xl'>Hours spent</h1>
+        <div className='mx-6'>
+            <h1 className='text-xl font-bold'>Hours spent</h1>
             <div className='text-lg font-bold mt-3'>
                 <div ref={chartRef} style={{ width: '100%', height: '220px' }} />
             </div>
