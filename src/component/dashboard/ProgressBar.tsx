@@ -9,7 +9,7 @@ type ProgressBarProps = {
     bgColor?: string;         // สี background ของแถบเบื้องหลัง
 };
 
-const ProgressBar = ({ progress, width = "100%", height = "16px", color = "bg-orange-500", bgColor="bg-gray-100" }: ProgressBarProps) => {
+const ProgressBar = ({ progress, width = "100%", height = "16px", color = "bg-orange-600", bgColor="bg-gray-100" }: ProgressBarProps) => {
     
     return (
         <div className={`${bgColor} rounded-full overflow-hidden`} style={{ width, height }}>

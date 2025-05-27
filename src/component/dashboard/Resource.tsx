@@ -42,7 +42,7 @@ const Resource = () => {
   return (
     <div className='h-full mx-2'>
       <div className='flex justify-between'>
-        <h1 className='text-xl ml-2 '>Yours Resources</h1>
+        <h1 className='text-xl font-bold ml-2 '>Yours Resources</h1>
         <button className='text-orange-600 text-sm p-1 px-2 cursor-pointer bg-orange-100 rounded-lg font-bold'>see more</button>
       </div>
       <div className='w-full mt-3'>
