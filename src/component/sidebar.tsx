@@ -35,7 +35,7 @@ const Sidebar = () => {
               key={index}
               href={item.href}
               className={`flex items-center gap-x-4 p-2 my-1 rounded-md w-full transition-all duration-200
-                ${isActive ? 'bg-orange-500 text-white' : 'text-gray-500 hover:bg-orange-100'}`}
+                ${isActive ? 'bg-orange-600 text-white' : 'text-gray-500 hover:bg-orange-100'}`}
             >
               {/* icon */}
               <div className="w-[30px] flex justify-center">
