@@ -1,5 +1,5 @@
 .react-calendar {
-  width: 50%;          
+  width: 60%;          
   max-height: 100%;    
   font-size: 0.7rem;    
   border: none;
@@ -71,7 +71,7 @@
   max-width: 100%;
 }
 
-/* ลดจำนวนคอลัมน์ลง ถ้าคุณอยากให้ไม่แสดงกว้างเกินไป (เลือกได้) */
+/* ลดจำนวนคอลัมน์ลง ถ้าไม่อยากให้แสดงกว้างเกินไป (เลือกได้) */
 .react-calendar__year-view .react-calendar__tile,
 .react-calendar__decade-view .react-calendar__tile {
   width: 25%; /* จาก 33% เป็น 25% = แสดง 4 คอลัมน์ แทน 3 คอลัมน์ */
