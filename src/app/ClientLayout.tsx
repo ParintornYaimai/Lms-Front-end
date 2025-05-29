@@ -26,9 +26,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <div className="hidden md:block fixed left-0 top-[56px] h-[calc(100vh-56px)] w-[70px] z-40">
           <Sidebar />
         </div>
-
         {/* Main content area */}
-        <div className="w-full ml-[71px] overflow-hidden">{/* อยากให้ scroll ได้ใช้h-screen */}
+        <div className="w-full h-full ml-[71px]">{/* อยากให้ scroll ได้ใช้h-screen */}
           {children}
         </div>
       </div>
