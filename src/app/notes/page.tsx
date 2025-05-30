@@ -1,14 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CgSortAz } from "react-icons/cg";
 import { BiFilterAlt } from "react-icons/bi";
 import { FaPlus } from "react-icons/fa6";
 import Image from "next/image";
 import { FaRegCommentDots } from "react-icons/fa6";
 import { FaArrowRight } from "react-icons/fa6";
+import AddNoteModal from "@/component/note/AddNoteModal";
+import Page from "./[notesId]/page";
+import SortBy from "@/component/note/SortBy";
+import Filter from "@/component/note/Filter";
 
 const Note = () => {
-  const [activeTab, setActiveTab] = useState("ALL");
+  const [activeTab, setActiveTab] = useState("ALL"); //เเสดงข้อมูลว่าเป็นทั้งหมดหรือเเค่ของเรา
+  const [isModalOpen, setModalOpen] = useState(false); //add note เปิดปิด Modal
+  const [isModalOpenPage, setisModalOpenPage] = useState(false) // เปิดตาม note id
+  const [openSortBy, setOpenSortBy] = useState(false) //เปิดปิด sort by
+  const [openFilter, setOpenFilter] = useState(false) //เปิดปิด Filter
 
   return (
     <div className=" flex flex-col overflow-hidden">
@@ -18,13 +26,14 @@ const Note = () => {
           <h1 className="text-4xl text-orange-600 font-semibold">Notes</h1>
           <div className="flex items-center gap-3 p-3">
             {[
-              { icon: <CgSortAz size={20} />, text: "Sort By" },
-              { icon: <BiFilterAlt size={20} />, text: "Filter" },
-              { icon: <FaPlus size={20} />, text: "Add Notes" },
-            ].map(({ icon, text }, idx) => (
+              { icon: <CgSortAz size={20} />, text: "Sort By", onClick: () => {setOpenSortBy(prev => !prev); setOpenFilter(false);}},
+              { icon: <BiFilterAlt size={20} />, text: "Filter", onClick: () => {setOpenFilter(prev => !prev); setOpenSortBy(false)}},
+              { icon: <FaPlus size={20} />, text: "Add Notes", onClick: () => { setModalOpen(prev => !prev); setOpenFilter(false); setOpenSortBy(false)}},
+            ].map(({ icon, text, onClick  }, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-center space-x-2 cursor-pointer border border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white duration-200 ease-in-out px-2 py-2 rounded-sm min-w-[120px]"
+                onClick={onClick}
               >
                 <div>{icon}</div>
                 <span className="text-sm">{text}</span>
@@ -60,7 +69,7 @@ const Note = () => {
             {Array.from({ length: 50 }).map((_, idx) => (
 
             <div key={idx} className="max-h-sm sm:max-h-[206px] md:max-h-[270px] border border-gray-300 rounded-md shadow-sm bg-white hover:shadow-md transition  hover:scale-101  duration-300">
-              <div className="p-4">
+              <div className="p-4 cursor-pointer" onClick={()=>setisModalOpenPage(true)} >
                 {/* card header */}
                 <div className=" flex items-center justify-between gap-4 mb-2">
                   {/* tag */}
@@ -124,7 +133,7 @@ const Note = () => {
                     </div>
 
                     {/* Button */}
-                    <button className="h-7 w-10 flex items-center justify-center bg-orange-600 text-white rounded-2xl text-sm">
+                    <button className="h-7 w-10 flex items-center justify-center bg-orange-600 text-white rounded-2xl text-sm cursor-pointer">
                       <FaArrowRight size={14} />
                     </button>
                     {/* date time */}
@@ -138,6 +147,22 @@ const Note = () => {
             ))}
           </div>
         </div>
+        {/*note id  */}
+        {
+          <Page isModalOpenPage={isModalOpenPage} onClose={() => setisModalOpenPage(false)}/>
+        }
+        {/* Add note Madal */}
+        {
+          <AddNoteModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
+        }
+        {/* SortBy */}
+        {
+          <SortBy isOpen={openSortBy} onClose={() => setOpenSortBy(false)} />
+        }
+        {/* Filter */}
+        {
+          <Filter isOpen={openFilter} onClose={() => setOpenFilter(false)} />
+        }
       </div>
     </div>
   );
