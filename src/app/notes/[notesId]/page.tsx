@@ -1,3 +1,4 @@
+'use client'
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useState } from "react";
 import { FaArrowRight, FaRegCommentDots } from "react-icons/fa6";
@@ -8,8 +9,10 @@ type PageProps = {
   onClose: () => void;
 };
 
-const Page = ({ isModalOpenPage, onClose }: PageProps) => {
+const NoteDetailPage = ({ isModalOpenPage, onClose }: PageProps) => {
   const [activeTab, setActiveTab] = useState("comments");
+ 
+  
   return (
     <AnimatePresence>
       {isModalOpenPage && (
@@ -39,7 +42,7 @@ const Page = ({ isModalOpenPage, onClose }: PageProps) => {
             <div className="flex justify-between items-start">
               <div className="flex gap-2">
                 <span className="bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
-                  Today
+                  Engineering
                 </span>
                 <span className="bg-blue-100 text-blue-700 text-sm font-medium px-3 py-1 rounded-full">
                   Engineering
@@ -288,4 +291,4 @@ const Page = ({ isModalOpenPage, onClose }: PageProps) => {
   );
 };
 
-export default Page;
+export default NoteDetailPage;
