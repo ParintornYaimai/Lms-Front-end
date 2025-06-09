@@ -14,6 +14,8 @@ const Sidebar = () => {
   const hideTopNavbar = shouldHideTopNavbar(pathname)
   if (hideTopNavbar) return null
 
+  const checkRole = 'teacher'
+
   const menuItems = [
     { icon: <MdOutlineSpaceDashboard size={25} />, href: "/dashboard", label: "Dashboard" },
     { icon: <MdOutlineAssignment size={25} />, href: "/assignments", label: "Assignments" },
@@ -24,11 +26,17 @@ const Sidebar = () => {
     { icon: <MdCastForEducation size={25} />, href: "/courses", label: "Courses" },
     { icon: <IoSettingsOutline size={25} />, href: "/settings", label: "Settings" },
   ]
+  const teacherMenuItems = [
+    { icon: <MdOutlineSpaceDashboard size={25} />, href: "/teacher/dashboard", label: "Dashboard" },
+    { icon: <MdOutlineAssignment size={25} />, href: "/teacher/assignment", label: "Assignments" },
+    { icon: <MdCastForEducation size={25} />, href: "/teacher/course", label: "Create New Courses" },
+    { icon: <IoSettingsOutline size={25} />, href: "/teacher/setting", label: "Settings" },
+  ]
 
   return (
     <div className="group w-[71px] hover:w-64 transition-all duration-300 h-screen fixed top-16 left-0 bg-white border-r border-gray-300 overflow-hidden">
       <div className="h-full flex flex-col items-start mt-10 pl-3 pr-4">
-        {menuItems.map((item, index) => {
+        {(checkRole === 'teacher' ? teacherMenuItems : menuItems).map((item, index) => {
           const isActive = pathname.startsWith(item.href)
           return (
             <Link
