@@ -368,6 +368,7 @@ const Page = () => {
             <div
               key={index}
               className="grid md:grid-cols-5 grid-cols-1 bg-white rounded-md border border-gray-300 p-4 gap-y-2 md:gap-0"
+              
             >
               <div className="md:truncate font-medium">
                 <span className="md:hidden text-gray-500 ">
