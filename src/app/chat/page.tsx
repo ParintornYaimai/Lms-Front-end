@@ -166,7 +166,7 @@ const Chat = () => {
           <div className=''>
             {/*header*/}
             <div className='border-b border-gray-200 p-1'>
-              <div className='flex items-start gap-3'>
+              <div className='flex items-center gap-3'>
                 <Image 
                   src={'/user.png'}
                   alt='user'
@@ -181,35 +181,247 @@ const Chat = () => {
               </div>
             </div>
 
-            {/* messasge */}
-            <div className='p-2'>
-              <div className=' border 2xl:h-[750] xl:h-[600]'>
-                {/* sender */}
-                <div>
-                  <Image 
-                    src={'/user.png'}
-                    alt='user'
-                    width={35}
-                    height={35}
-                    className='border border-gray-300 rounded-full'
-                  />
+          {/* messasge */}
+          <div>
+            <div className="h-[600px] 2xl:h-[750px] overflow-y-auto p-2 space-y-4 bg-white overflow-auto no-scrollbar">
+              <div className="flex-grow overflow-y-auto p-2 space-y-4 bg-white">
+                {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p className='text-sm'>สวัสดีครับ! มีอะไรให้ช่วยไหม?</p>
                 </div>
+              </div>
+
+              {/* Receiver Message */}
+              <div className="flex items-center gap-1 justify-end">
+                <div className="bg-orange-600 text-white px-3 py-2 rounded-full max-w-[70%]"> 
+                  <p  className='text-sm'>อยากสอบถามเรื่องเอกสารครับ</p>
+                </div>
+              </div>
+
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>ได้เลยครับ เดี๋ยวผมส่งให้ทางอีเมล</p>
+                </div>
+              </div>
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p className='text-sm'>สวัสดีครับ! มีอะไรให้ช่วยไหม?</p>
+                </div>
+              </div>
+
+              {/* Receiver Message */}
+              <div className="flex items-center gap-1 justify-end">
+                <div className="bg-orange-600 text-white px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>อยากสอบถามเรื่องเอกสารครับ</p>
+                </div>
+              </div>
+
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>ได้เลยครับ เดี๋ยวผมส่งให้ทางอีเมล</p>
+                </div>
+              </div>
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p className='text-sm'>สวัสดีครับ! มีอะไรให้ช่วยไหม?</p>
+                </div>
+              </div>
+
+              {/* Receiver Message */}
+              <div className="flex items-center gap-1 justify-end">
+                <div className="bg-orange-600 text-white px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>อยากสอบถามเรื่องเอกสารครับ</p>
+                </div>
+              </div>
+
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>ได้เลยครับ เดี๋ยวผมส่งให้ทางอีเมล</p>
+                </div>
+              </div>
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p className='text-sm'>สวัสดีครับ! มีอะไรให้ช่วยไหม?</p>
+                </div>
+              </div>
+
+              {/* Receiver Message */}
+              <div className="flex items-center gap-1 justify-end">
+                <div className="bg-orange-600 text-white px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>อยากสอบถามเรื่องเอกสารครับ</p>
+                </div>
+              </div>
+
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>ได้เลยครับ เดี๋ยวผมส่งให้ทางอีเมล</p>
+                </div>
+              </div>
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p className='text-sm'>สวัสดีครับ! มีอะไรให้ช่วยไหม?</p>
+                </div>
+              </div>
+
+              {/* Receiver Message */}
+              <div className="flex items-center gap-1 justify-end">
+                <div className="bg-orange-600 text-white px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>อยากสอบถามเรื่องเอกสารครับ</p>
+                </div>
+              </div>
+
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>ได้เลยครับ เดี๋ยวผมส่งให้ทางอีเมล</p>
+                </div>
+              </div>
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p className='text-sm'>สวัสดีครับ! มีอะไรให้ช่วยไหม?</p>
+                </div>
+              </div>
+
+              {/* Receiver Message */}
+              <div className="flex items-center gap-1 justify-end">
+                <div className="bg-orange-600 text-white px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>อยากสอบถามเรื่องเอกสารครับ</p>
+                </div>
+              </div>
+
+              {/* Sender Message */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/user.png"
+                  alt="sender"
+                  width={35}
+                  height={35}
+                  className="border border-gray-300 rounded-full"
+                />
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-full max-w-[70%]">
+                  <p  className='text-sm'>ได้เลยครับ เดี๋ยวผมส่งให้ทางอีเมลlorem20</p>
+                </div>
+              </div>
               </div>
             </div>
+          </div>
+          {/* messasge */}
 
-            {/* controll */}
-            <div className='w-full border lg:p-1 2xl:p-3'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <MdOutlineAttachFile size={30}/>
-                </div>
-                <div>
-                  <input type="text" />
-                </div>
-                <div>
-                  icon
-                </div>
-              </div>
+          {/* controll */}
+            <div className="border-t border-gray-200 px-3 py-2 2xl:py-5 flex items-center gap-2">
+              <button className="text-gray-500 hover:text-orange-600">
+                <MdOutlineAttachFile size={22} />
+              </button>
+
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className="flex-1 px-4 py-2 text-sm rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    // handleSendMessage()
+                    console.log("Send Message: ", e.currentTarget.value);
+                    e.currentTarget.value = '';
+                  }
+                }}
+              />
+
+              <button
+                className="bg-orange-600 text-white px-4 py-2 rounded-full hover:bg-orange-700 text-sm"
+                onClick={() => {
+                  // handleSendMessage()
+                  console.log("Send Message Clicked");
+                }}
+              >
+                Send
+              </button>
             </div>
           </div>  
         </div>
