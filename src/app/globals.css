@@ -8,3 +8,13 @@
   scrollbar-width: none; /* Firefox */
 }
 
+.my-masonry-grid {
+  display: flex;
+  margin-left: -1.5rem; /* -ml-6 เท่ากับ -24px */
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  padding-left: 1.5rem; /* pl-6 เท่ากับ 24px */
+  background-clip: padding-box;
+}
