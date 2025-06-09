@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react';
+import { FiPlus } from "react-icons/fi";
 
 const Todolist = () => {
   const [tasks, setTasks] = useState([
@@ -28,6 +29,7 @@ const Todolist = () => {
     //   completed: false,
     // },
   ]);
+  const [AddToDoList, setAddToDoList] = useState(false)
 
   const toggleCheck = (id: number) => {
     setTasks(prev =>
@@ -39,7 +41,14 @@ const Todolist = () => {
 
   return (
     <div className="h-full px-5 ">
-      <h1 className="text-xl font-bold mb-5">To Do List</h1>
+      <div className='flex items-center justify-between mb-5'>
+        <div>
+          <h1 className="text-xl font-bold ">To Do List</h1>
+        </div>
+        <div className='flex'>
+          <span className='text-orange-600 hover:bg-orange-600 hover:text-white border border-orange-600 duration-300 ease-in-out rounded-md cursor-pointer px-2 py-1 text-xs'>Add</span>
+        </div>
+      </div>
 
       <div className="max-h-55 overflow-y-auto pr-2 space-y-4 no-scrollbar">
         {tasks.map(task => (
@@ -52,7 +61,7 @@ const Todolist = () => {
               id={`task-${task.id}`}
               checked={task.completed}
               onChange={() => toggleCheck(task.id)}
-              className="w-5 h-5 accent-orange-600 focus:ring-orange-600 border-gray-300 rounded mt-1"
+              className="w-5 h-5 accent-orange-600 focus:ring-orange-600 border-gray-300 rounded mt-1 cursor-pointer"
             />
             <label htmlFor={`task-${task.id}`} className="cursor-pointer">
               <h2
