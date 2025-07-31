@@ -1,72 +1,152 @@
 "use client";
 import React, { useState, useEffect  } from "react";
 import Header from "./Header";
+import toast from "react-hot-toast";
+import { getCategory, getSubCategory } from "@/services/categoryService";
+import { Category, CategoryResponse, SubCategory } from "@/types/categoryType";
+import { BasicInfoType } from "@/types/teacher/courseType";
+
+
 
 type Props = {
   step: string;
   goToNextStep: () => void;
   returnTo: () => void;
+  setData: (value:BasicInfoType)=> void; //ส่งข้อมูลไปคอมโพเน้นเเม่
 };
 
-const Basicinformation = ({ step, goToNextStep, returnTo }: Props) => {
-  const [filledCountBasic, setFilledCountBasic] = useState(0);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [subjectCategory, setSubjectCategory] = useState("");
-  const [topic, setTopic] = useState("");
-  const [language, setLanguage] = useState("");
-  const [subtitleLanguage, setSubtitleLanguage] = useState("");
-  const [level, setLevel] = useState("");
-  const [duration, setDuration] = useState("");
-  const [durationUnit, setDurationUnit] = useState("");
+const Basicinformation = ({ step, goToNextStep, returnTo, setData }: Props) => {
+  const [filledCountBasic, setFilledCountBasic] = useState<number>(0); //เก็บนับจำนวนช่องที่กรอกเเล้ว
+  const [unfilledCountBasic, setUnfilledCountBasic] = useState<number>(0); //เก็บนับจำนวนช่องที่ยังไม่กรอกเเล้ว
+  const [title, setTitle] = useState<string>("");
+  const [subtitle, setSubtitle] = useState<string>("");
+  const [category, setCategory] = useState<Category[]>() // เก็บ category ที่ได้มาจาก api
+  const [selectcategory, setSelectCategory] = useState<string>(""); //เก็บ category ที่เลือก
+  const [selectCategoryId, setSelectCategoryId] = useState<string>("") //เก็บ Id ขอ Category เพื่อให้หา SubCategory
+  const [subjectCategory, setSubjectCategory] = useState<SubCategory[]>(); //เก็บ SubCategory ที่ได้มาจาก api
+  const [selectSubjectCategory, setSelectSubjectCategory] = useState<string>(""); // เก็บ subcategory ที่เลือก
+  const [topic, setTopic] = useState<string>("");
+  const [language, setLanguage] = useState<string>("");
+  const [subtitleLanguage, setSubtitleLanguage] = useState<string>("");
+  const [level, setLevel] = useState<string>("");
+  const [duration, setDuration] = useState<number >(0);
+  const [durationUnit, setDurationUnit] = useState<string>("");
 
+  
+  // ตรวจข้อมูล
   const isFormValid = () => {
     return (
       title.trim() !== "" &&
       subtitle.trim() !== "" &&
-      category !== "" &&
-      subjectCategory !== "" &&
+      selectcategory !== "" &&
+      selectSubjectCategory !== "" &&
       topic.trim() !== "" &&
       language !== "" &&
       subtitleLanguage !== "" &&
       level !== "" &&
-      duration.trim() !== "" &&
+      duration !== 0 &&
       durationUnit !== "" 
     );
   };
+
+  // ไปหน้าถัดไป
   const handleNextStep = () => {
-    if (isFormValid()) {
+    if(isFormValid()){
       goToNextStep();
-    } else {
+    }else{
       alert("กรุณากรอกข้อมูลให้ครบถ้วนทุกช่องที่จำเป็น");
     }
   };
 
-  const getFilledFieldCount = () => {
-    let count = 0;
-    if (title.trim() !== "") count++;
-    if (subtitle.trim() !== "") count++;
-    if (category !== "" && category !== "Select...") count++;
-    if (subjectCategory !== "" && subjectCategory !== "Select...") count++;
-    if (topic.trim() !== "") count++;
-    if (language !== "" && language !== "Select...") count++;
-    if (subtitleLanguage !== "" && language !== "Select...") count++;
-    if (level !== "" && level !== "Select...") count++;
-    if (duration.trim() !== "") count++;
-    if (durationUnit !== "") count++;
-    return count;
+  // จัดการข้อมูลจากช่องเเละนับข้อมูลที่กรอกเเล้วเเละยังไม่ได้กรอก
+  const getFieldCounts = () => {
+    const fields = [
+      title.trim(),
+      subtitle.trim(),
+      selectcategory !== "Select..." ? selectcategory : "",
+      selectSubjectCategory !== "Select..." ? selectSubjectCategory : "",
+      topic.trim(),
+      language !== "Select..." ? language : "",
+      subtitleLanguage !== "Select..." ? subtitleLanguage : "",
+      level !== "Select..." ? level : "",
+      duration,
+      durationUnit,
+    ];
+
+    const filled = fields.filter((value) => value !== "").length;
+    const total = fields.length;
+
+    return { filled, total };
   };
 
-
+  // นับจำนวนช่องที่กรอกข้อมูลเเล้ว
   useEffect(() => {
-    const count = getFilledFieldCount();
-    setFilledCountBasic(count);
-  }, [title, subtitle, category, subjectCategory, topic, language, subtitleLanguage,level, duration, durationUnit]);
+    const { filled, total } = getFieldCounts();
+    setFilledCountBasic(Number(filled));
+    setUnfilledCountBasic(Number(total));
+    }, [
+      title,
+      subtitle,
+      selectcategory,
+      selectSubjectCategory,
+      topic,
+      language,
+      subtitleLanguage,
+      level,
+      duration,
+      durationUnit,
+  ]);
+
+  // ดึง category 
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const data: CategoryResponse = await getCategory();
+        const filtered = data.data.filter(cat => cat.name.toLowerCase() !== "all");
+
+        setCategory(filtered);
+      } catch (error: any) {
+        toast.error(error.message || "Something went wrong");
+      }
+    };
+    fetchCategory();
+  }, []);
+
+  // ดึง subCategory จาก CategoryId
+  useEffect(()=>{
+    setSubjectCategory([]);
+    const fetchSubCategory = async()=>{
+      try {
+        const data = await getSubCategory(selectCategoryId);
+        setSubjectCategory(data.data)
+      } catch (error: any) {
+        toast.error(error.message || "Something went wrong");
+      }
+    }
+    fetchSubCategory()
+  },[selectCategoryId])
+
+  // ส่งข้อมูลไปที่คอมโพเน้นเเม่
+  const handleSendData = ()=>{
+    const basicInfo:BasicInfoType ={
+      title,
+      subtitle,
+      coursecate:selectCategoryId,
+      coursesubjectcate:selectSubjectCategory,
+      coursetopic:topic,
+      courselanguage:language,
+      subtitlelanguage:subtitleLanguage,
+      courselevel:level,
+      duration,
+      durationUnit
+    }
+
+    setData(basicInfo); 
+  };
 
   return (
     <div>
-      <Header step={step} filledCountBasic={filledCountBasic} totalInputs={0}/>
+      <Header step={step} filledCountBasic={filledCountBasic} totalInputsBasic={unfilledCountBasic}/>
       <div>
         <div>
           <div className="mx-5">
@@ -103,13 +183,24 @@ const Basicinformation = ({ step, goToNextStep, returnTo }: Props) => {
                     Course Category
                   </label>
                   <select
-                    className="mt-1 w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none text-gray-500"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    className="mt-1 w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none text-gray-500 cursor-pointer"
+                    value={selectcategory}
+                    onChange={(e) => {
+                      const selectedName = e.target.value;
+                      setSelectCategory(selectedName); 
+
+                      const selectedObj = category?.find(cat => cat.name === selectedName);
+                      selectedObj ? setSelectCategoryId(selectedObj._id) : setSelectCategoryId("")
+                    }}
                   >
-                    <option>Select...</option>
-                    <option value="category1">Category 1</option>
-                    <option value="category2">Category 2</option>
+                    <option value="" disabled hidden>Select...</option>
+                    {
+                      category?.map((categories)=>{
+                        return(
+                          <option key={categories._id} value={categories.name}>{categories.name}</option>
+                        )
+                      })
+                    }
                   </select>
                 </div>
                 <div>
@@ -117,13 +208,18 @@ const Basicinformation = ({ step, goToNextStep, returnTo }: Props) => {
                     Course Subject-category
                   </label>
                   <select
-                    className="mt-1 w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none text-gray-500"
-                    value={subjectCategory}
-                    onChange={(e) => setSubjectCategory(e.target.value)}
+                    className="mt-1 w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none text-gray-500 cursor-pointer" 
+                    value={selectSubjectCategory}
+                    onChange={(e) => setSelectSubjectCategory(e.target.value)}
                   >
-                    <option>Select...</option>
-                    <option value="sub-category1">Category 1</option>
-                    <option value="sub-category2">Category 2</option>
+                    <option value="" disabled hidden>Select...</option>
+                    {
+                      subjectCategory?.map((subjectCategories)=>{
+                        return(
+                          <option key={subjectCategories._id} value={subjectCategories._id}>{subjectCategories.name}</option>
+                        )
+                      })
+                    }
                   </select>
                 </div>
               </div>
@@ -194,8 +290,18 @@ const Basicinformation = ({ step, goToNextStep, returnTo }: Props) => {
                       type="text"
                       placeholder="Course durations"
                       className="mt-1 w-full border border-gray-300  px-3 py-1 focus:outline-none"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
+                      value={duration === 0 ? "" : duration.toString()}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setDuration(0); 
+                        } else {
+                          const num = Number(val);
+                          if (!isNaN(num)) {
+                            setDuration(num);
+                          }
+                        }
+                      }}
                     />
                     <select
                       className="mt-1 w-24 border border-gray-300  px-3 py-2 bg-white focus:outline-none cursor-pointer"
@@ -223,7 +329,7 @@ const Basicinformation = ({ step, goToNextStep, returnTo }: Props) => {
                       ? "bg-orange-600 hover:bg-orange-700"
                       : "bg-gray-300 cursor-not-allowed"
                   }`}
-                  onClick={handleNextStep}
+                  onClick={()=>{handleNextStep(), handleSendData()}}
                   disabled={!isFormValid()}
                 >
                   Next

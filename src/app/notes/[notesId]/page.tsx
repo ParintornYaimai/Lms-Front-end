@@ -1,21 +1,180 @@
-'use client'
+"use client";
+import { createComment, deleteComment } from "@/services/commentService";
+import { deleteNote, getNotesById } from "@/services/noteServices";
+import { disconnectSocket, initiateSocketConnection } from "@/services/socket";
+import { useAuthStore } from "@/store/authStore";
+import type { NoteId, NotesIdResponse } from "@/types/noteType";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { FaArrowRight, FaRegCommentDots } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
+import { FaRegEdit } from "react-icons/fa";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { useFile } from "@/hooks/useFile";
 
 type PageProps = {
   isModalOpenPage: boolean;
   onClose: () => void;
+  selectedNoteId: string;
+  handleDeleteNote: (id: string) => void;
 };
 
-const NoteDetailPage = ({ isModalOpenPage, onClose }: PageProps) => {
-  const [activeTab, setActiveTab] = useState("comments");
- 
-  
+const Picture = ({ fileData }: { fileData: any }) => {
+  const { url } = useFile(fileData.fileId);
+  return (
+    <>
+      {url && <img src={url} alt="avatar" className="rounded-full w-8 h-8" />}
+    </>
+  );
+};
+
+const NoteDetailPage = ({
+  isModalOpenPage,
+  onClose,
+  selectedNoteId,
+  handleDeleteNote,
+}: PageProps) => {
+  const [activeTab, setActiveTab] = useState<string>("comment");
+  const [noteId, setNotesId] = useState<NoteId | null>(null);
+  const [comment, setComment] = useState({
+    content: "",
+    note: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const tagColors: Record<string, string> = {
+    Business: "bg-purple-100 text-purple-500",
+    Design: "bg-pink-100 text-pink-500",
+    "Personal Development": "bg-emerald-100 text-emerald-500",
+    Development: "bg-stone-200 text-stone-800",
+    "Finance & Accounting": "bg-red-100 text-red-500",
+    "Health & Fitness": "bg-green-100 text-green-500",
+    Language: "bg-fuchsia-100 text-fuchsia-500",
+    Marketing: "bg-yellow-100 text-yellow-500",
+    Music: "bg-gray-100 text-gray-500",
+    "Office Productivity": "bg-amber-100 text-amber-500",
+    "Photography & Video": "bg-blue-100 text-blue-500",
+    "Science & Engineering": "bg-cyan-100 text-cyan-500",
+    "Test Preparation": "bg-lime-100 text-lime-500",
+  };
+
+  // ดึงข้อมูลตามidที่ส่งมา
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const data: NotesIdResponse = await getNotesById(selectedNoteId);
+        setNotesId(data.data);
+      } catch (err: any) {
+        setError(err.message);
+        toast.error(err.message);
+      }
+    };
+
+    if (selectedNoteId) {
+      fetchNotes();
+    }
+  }, [selectedNoteId]);
+
+  // รับข้อมูล realtime
+  const userId = useAuthStore((state) => state.user?.id) as string;
+  useEffect(() => {
+    if (!userId) return;
+    const socket = initiateSocketConnection(userId);
+    socket.on("comment:create", (comment) => {
+      setNotesId((prevNotes) => {
+        if (!prevNotes) return prevNotes;
+        return {
+          ...prevNotes,
+          comments: [...(prevNotes.comments ?? []), comment],
+        };
+      });
+    });
+
+    return () => {
+      disconnectSocket();
+    };
+  }, [userId]);
+
+  // สร้างcommment
+  const handleComment = async () => {
+    try {
+      await createComment(comment.content, selectedNoteId);
+      toast.success("Note created successfully!");
+      setComment({ content: "", note: "" });
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Failed to create note");
+    }
+  };
+
+  // ลบnote
+  const handledeleteNote = async (noteId: string) => {
+    try {
+      await deleteNote(noteId);
+      onClose();
+      toast.success("Note deleted successfully");
+      return;
+    } catch (err: any) {
+      setError(err.message);
+      toast.error(err.message);
+    }
+  };
+
+  //รับnoteที่ลบ
+  useEffect(() => {
+    if (!userId) return;
+    const socket = initiateSocketConnection(userId);
+    socket.on("note:delete", (deleteNoteId) => {
+      setNotesId((prevNote) => {
+        if (!prevNote) return null;
+        if (prevNote._id === deleteNoteId._id) {
+          handleDeleteNote(deleteNoteId._id);
+          return null;
+        }
+        return prevNote;
+      });
+    });
+
+    return () => {
+      disconnectSocket();
+    };
+  }, [userId]);
+
+  // ฟังกชั่นลบคอมเม้น
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteComment(commentId);
+      toast.success("Note deleted successfully");
+    } catch (error: any) {
+      setError(error.message);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!userId) return;
+    const socket = initiateSocketConnection(userId);
+    socket.on("comment:delete", (deleteCommentId) => {
+      setNotesId((prevNotesId) => {
+        if (!prevNotesId) return prevNotesId;
+
+        return {
+          ...prevNotesId,
+          comments: prevNotesId?.comments.filter(
+            (item) => item._id !== deleteCommentId._id
+          ),
+        };
+      });
+    });
+
+    return () => {
+      disconnectSocket();
+    };
+  }, [userId]);
+
   return (
     <AnimatePresence>
-      {isModalOpenPage && (
+      {isModalOpenPage && noteId && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center"
           initial={{ opacity: 0 }}
@@ -40,14 +199,31 @@ const NoteDetailPage = ({ isModalOpenPage, onClose }: PageProps) => {
           >
             {/* Header */}
             <div className="flex justify-between items-start">
-              <div className="flex gap-2">
-                <span className="bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
-                  Engineering
-                </span>
-                <span className="bg-blue-100 text-blue-700 text-sm font-medium px-3 py-1 rounded-full">
-                  Engineering
-                </span>
-              </div>
+              {noteId.author._id === userId ? (
+                <div className="flex items-center gap-5">
+                  <div className="p-3 bg-gray-100 rounded-full cursor-pointer">
+                    <FaRegEdit size={20} />
+                  </div>
+                  <div
+                    className="p-3 bg-gray-100 rounded-full  cursor-pointer"
+                    onClick={() => handledeleteNote(noteId._id)}
+                  >
+                    <RiDeleteBin6Line size={20} />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex gap-2">
+                    <span
+                      className={`bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full ${
+                        tagColors[noteId.tag] ?? "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      {noteId.tag}
+                    </span>
+                  </div>
+                </div>
+              )}
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -55,14 +231,27 @@ const NoteDetailPage = ({ isModalOpenPage, onClose }: PageProps) => {
                 <IoClose size={24} />
               </button>
             </div>
+            {noteId.author._id === userId && (
+              <div className="mt-4">
+                <div className="flex gap-2">
+                  <span
+                    className={`bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full ${
+                      tagColors[noteId.tag] ?? "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {noteId.tag}
+                  </span>
+                </div>
+              </div>
+            )}
 
             <h2 className="text-2xl font-semibold mt-4 mb-2">
-              Product Team Meeting
+              {noteId?.title}
             </h2>
             <p className="text-sm text-gray-500 mb-4">
               Created Date:{" "}
               <span className="font-medium text-gray-700">
-                12 Nov, 2021 at 9:40 PM
+                {new Date(noteId.createdAt).toLocaleDateString()}
               </span>
             </p>
 
@@ -70,28 +259,7 @@ const NoteDetailPage = ({ isModalOpenPage, onClose }: PageProps) => {
               <h3 className="text-sm font-semibold mb-1">Description</h3>
               <div className="max-h-40 overflow-y-auto pr-2 ">
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  Lorem Ipsum is simply dummy text of the printing and typesetting
-                  industry. Lorem Ipsum has been the industry's standard dummy
-                  text ever since the 1500s, when an unknown printer took a galley
-                  of type and scrambled it to make a type specimen book.
-                  Lorem Ipsum is simply dummy text of the printing and typesetting
-                  industry. Lorem Ipsum has been the industry's standard dummy
-                  text ever since the 1500s, when an unknown printer took a galley
-                  of type and scrambled it to make a type specimen book. Lorem Ipsum 
-                  is simply dummy text of the printing and typesetting
-                  industry. Lorem Ipsum has been the industry's standard dummy
-                  text ever since the 1500s, when an unknown printer took a galley
-                  of type and scrambled it to make a type specimen book.
-                   of type and scrambled it to make a type specimen book. Lorem Ipsum 
-                  is simply dummy text of the printing and typesetting
-                  industry. Lorem Ipsum has been the industry's standard dummy
-                  text ever since the 1500s, when an unknown printer took a galley
-                  of type and scrambled it to make a type specimen book.
-                   of type and scrambled it to make a type specimen book. Lorem Ipsum 
-                  is simply dummy text of the printing and typesetting
-                  industry. Lorem Ipsum has been the industry's standard dummy
-                  text ever since the 1500s, when an unknown printer took a galley
-                  of type and scrambled it to make a type specimen book.
+                  {noteId?.description || "No description available."}
                 </p>
               </div>
             </div>
@@ -123,166 +291,81 @@ const NoteDetailPage = ({ isModalOpenPage, onClose }: PageProps) => {
             </div>
 
             {/* Comment Box */}
-            <span className="font-semibold my-3">Post Commment</span>
+            <span className="font-semibold my-3">Post Comment</span>
             <div className="w-full mb-3 flex items-center justify-between gap-2 ">
               <div className="relative w-full max-w-[650px]">
-                {/* ไอคอนค้นหาทางซ้าย */}
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <FaRegCommentDots className="w-4 h-4 text-orange-600" />
                 </span>
-                {/* Input */}
                 <input
                   type="text"
                   placeholder="Write down your question and comments"
                   className="w-full pl-10 pr-5 h-10 bg-gray-100 rounded-full focus:outline-none focus:ring-1 focus:ring-orange-600 placeholder-gray-400 text-md"
+                  value={comment.content}
+                  onChange={(e) =>
+                    setComment((prev) => ({ ...prev, content: e.target.value }))
+                  }
                 />
               </div>
-              <div >
-                <button className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-full hover:bg-orange-700 cursor-pointer">
-                <span>Post </span>
-                <FaArrowRight size={15} />
-              </button>
+              <div>
+                <button
+                  className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-full hover:bg-orange-700 cursor-pointer"
+                  onClick={handleComment}
+                >
+                  <span>Post </span>
+                  <FaArrowRight size={15} />
+                </button>
               </div>
             </div>
 
             {/* Comment List */}
-            <span className="font-semibold text-md">Latest Commments (22)</span>
+            <span className="font-semibold text-md">
+              Latest Comments ({noteId?.comments?.length || 0})
+            </span>
             <div
-              className="space-y-3 mt-4 overflow-y-auto  "
+              className="space-y-3 mt-4 overflow-y-auto"
               style={{ maxHeight: "250px" }}
             >
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=5"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">
-                      Brooklyn Simmons (You)
-                    </span>{" "}
-                    •{" "}
-                    <span className="text-gray-400 text-xs">13 hours ago</span>
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <img
-                  src="https://i.pravatar.cc/40?img=3"
-                  alt="avatar"
-                  className="rounded-full w-8 h-8"
-                />
-                <div>
-                  <p className="text-sm">
-                    <span className="font-semibold">Jane Cooper</span> •{" "}
-                    <span className="text-gray-400 text-xs">10 mins ago</span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-blue-600">@Everyone</span> Great job.
-                  </p>
-                </div>
-              </div>
+              {noteId?.comments?.map((comment, index) => {
+                const author = comment.author?.[0]; // ดึง author คนแรก
+                const createdDate = new Date(comment.createdAt).toLocaleString();
+
+                return (
+                  <div key={index} className="flex items-start gap-3">
+                    <Picture fileData={{ fileId: author.profilepicture.fileId }} />
+                    <div className="w-full">
+                      <div className="flex justify-between">
+                        <p className="text-sm">
+                          <span className="font-semibold">
+                            {author.firstname} {author.lastname}
+                          </span>{" "}
+                          •{" "}
+                          <span className="text-gray-400 text-xs">
+                            {createdDate}
+                          </span>
+                        </p>
+                        {comment.author?.map((item) => item._id === userId) && (
+                          <div
+                            className="p-1 bg-gray-100 rounded-full cursor-pointer"
+                            onClick={() => handleDeleteComment(comment._id)}
+                          >
+                            <RiDeleteBin6Line size={15} />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-700">
+                          {comment.content}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {noteId?.comments?.length === 0 && (
+                <p className="text-sm text-gray-400">No comments yet.</p>
+              )}
             </div>
           </motion.div>
         </motion.div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosArrowDown, IoIosCheckmark } from "react-icons/io";
 import { PiCpu } from "react-icons/pi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,128 +13,126 @@ import { PiMegaphoneSimple } from "react-icons/pi";
 import { PiNewspaperClippingLight } from "react-icons/pi";
 import { PiBugDroid } from "react-icons/pi";
 import { VscGraph } from "react-icons/vsc";
+import toast from "react-hot-toast";
+import { getCategory, getSubCategory } from "@/services/categoryService";
+import { Category, CategoryResponse } from "@/types/categoryType";
+import { LuLanguages } from "react-icons/lu";
+import { GiMaterialsScience } from "react-icons/gi";
+import { TbBrandSpeedtest } from "react-icons/tb";
 
-const Selection = () => {
+type Props={
+  onSendData:(filter:string[])=> void;
+}
+
+const Selection = ({onSendData}: Props) => {
   const [isOpen, setIsOpen] = useState(true); //CATEGORY
   const [openCategory, setOpenCategory] = useState<number | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [category,setCategory] = useState<Category[]>()
+  const [subcategoriesMap, setSubcategoriesMap] = useState<Record<string, Category[]>>({});
 
   const categories = [
     {
       name: "Development",
       icon: <PiCpu size={25} />,
-      subcategories: [
-        { name: "Data Science", count: 574 },
-        { name: "Mobile Development", count: 1345 },
-        { name: "Software Testing", count: 317 },
-        { name: "Software Engineering", count: 31 },
-        { name: "Software Development Tools", count: 558 },
-        { name: "No-Code Development", count: 37 },
-      ],
     },
     {
       name: "Business",
       icon: <LiaHandshakeSolid size={25} />,
-      subcategories: [
-        { name: "Entrepreneurship", count: 214 },
-        { name: "Management", count: 423 },
-        { name: "Sales", count: 350 },
-        { name: "Business Strategy", count: 180 },
-      ],
     },
     {
       name: "Finance & Accounting",
       icon: <GoCreditCard size={25} />,
-      subcategories: [
-        { name: "Investing", count: 102 },
-        { name: "Accounting Basics", count: 311 },
-        { name: "Cryptocurrency", count: 98 },
-      ],
     },
     {
       name: "IT & Software",
       icon: <VscGraph size={25} />,
-      subcategories: [
-        { name: "Network & Security", count: 220 },
-        { name: "Operating Systems", count: 159 },
-        { name: "Hardware", count: 92 },
-      ],
     },
     {
       name: "Office Productivity",
       icon: <PiBugDroid size={25} />,
-      subcategories: [
-        { name: "Microsoft Office", count: 423 },
-        { name: "Google Workspace", count: 188 },
-        { name: "Productivity Tools", count: 97 },
-      ],
     },
     {
       name: "Personal Development",
       icon: <PiNewspaperClippingLight size={25} />,
-      subcategories: [
-        { name: "Leadership", count: 223 },
-        { name: "Personal Productivity", count: 348 },
-        { name: "Communication Skills", count: 190 },
-      ],
     },
     {
       name: "Design",
       icon: <LuPenTool size={25} />,
-      subcategories: [
-        { name: "Graphic Design", count: 712 },
-        { name: "UX/UI Design", count: 318 },
-        { name: "3D & Animation", count: 164 },
-      ],
     },
     {
       name: "Marketing",
       icon: <PiMegaphoneSimple size={25} />,
-      subcategories: [
-        { name: "Digital Marketing", count: 589 },
-        { name: "Content Marketing", count: 222 },
-        { name: "SEO", count: 199 },
-      ],
     },
     {
       name: "Lifestyle",
       icon: <BsBoxSeam size={25} />,
-      subcategories: [
-        { name: "Travel", count: 112 },
-        { name: "Home Improvement", count: 85 },
-        { name: "Pet Care", count: 46 },
-      ],
     },
     {
       name: "Photography & Video",
       icon: <MdOutlineCameraAlt size={25} />,
-      subcategories: [
-        { name: "Digital Photography", count: 342 },
-        { name: "Video Editing", count: 293 },
-        { name: "Lighting", count: 89 },
-      ],
     },
     {
       name: "Music",
       icon: <TfiHeadphoneAlt size={25} />,
-      subcategories: [
-        { name: "Music Production", count: 174 },
-        { name: "Instruments", count: 135 },
-        { name: "Vocal Training", count: 64 },
-      ],
     },
     {
       name: "Health & Fitness",
       icon: <AiOutlineMedicineBox size={25} />,
-      subcategories: [
-        { name: "Yoga", count: 192 },
-        { name: "Nutrition", count: 147 },
-        { name: "Mental Health", count: 116 },
-      ],
     },
+    {
+      name: "Language",
+      icon: <LuLanguages size={25} />,
+    },
+    {
+      name: "Test Preparation",
+      icon: <TbBrandSpeedtest size={25} />,
+    },
+    {
+      name: "Science & Engineering",
+      icon: <GiMaterialsScience  size={25} />,
+    }
   ];
 
+
+  // ดึง category
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const data: CategoryResponse = await getCategory();
+        const filtered = data.data.filter(cat => cat.name.toLowerCase() !== "all");
+
+        // เพิ่ม icon ให้แต่ละ category ที่ดึงมาจาก API
+        const mappedWithIcons = filtered.map(cat => {
+          const matched = categories.find(c => c.name.toLowerCase() === cat.name.toLowerCase());
+          return {
+            ...cat,
+            icon: matched?.icon || null, // กำหนด icon ถ้ามี match
+          };
+        });
+        setCategory(mappedWithIcons);
+      } catch (error: any) {
+        toast.error(error.message || "Something went wrong");
+      }
+    };
+
+    fetchCategory();
+  }, []);
+  
+  //ดึง subcategory เเล้วเก็บเป็น mapobj
+  const fetchSubCategory = async (categoryId: string) => {
+    try {
+      const data: CategoryResponse = await getSubCategory(categoryId);
+      setSubcategoriesMap((prev) => ({
+        ...prev,
+        [categoryId]: data.data,
+      }));
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+  
   const tools = [
     {
       name: "Tool",
@@ -163,14 +161,18 @@ const Selection = () => {
     open: { opacity: 1, height: "auto", transition: { duration: 0.3 } },
     closed: { opacity: 0, height: 0, transition: { duration: 0.3 } },
   };
-
+  
+  useEffect(()=>{
+    onSendData(selected)
+  },[selected])
+  
   return (
     <>
       {/* CATEGORY */}
-      <div className="w-full py-5 border border-gray-300">
+      <div className="w-full  border border-gray-300">
         {/* CATEGORY header */}
         <div
-          className="flex items-center justify-between mx-4 cursor-pointer"
+          className="flex items-center justify-between mx-4 cursor-pointer py-5"
           onClick={() => setIsOpen((prev) => !prev)}
         >
           <div
@@ -197,17 +199,26 @@ const Selection = () => {
               animate="open"
               exit="closed"
               variants={dropdownVariants}
-              className="mt-3 overflow-hidden"
+              className=" overflow-hidden"
             >
-              {categories.map((category, index) => {
+              {category?.map((item, index) => {
                 const isCatOpen = openCategory === index;
-
                 return (
-                  <div key={category.name}>
+                  <div key={item.name} >
                     {/* หมวดหลัก */}
                     <div
-                      onClick={() => setOpenCategory(isCatOpen ? null : index)}
-                      className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100  border-t border-gray-300"
+                      onClick={() => {
+                       const isCurrentlyOpen = openCategory === index;
+                        const newOpenIndex = isCurrentlyOpen ? null : index;
+                        setOpenCategory(newOpenIndex);
+
+                        // ถ้ายังไม่เคยโหลด subcategory ของหมวดนี้ ให้โหลด
+                        if (!isCurrentlyOpen && !subcategoriesMap[item._id]) {
+                          fetchSubCategory(item._id);
+                        }
+                      }}
+                      className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100  border-t border-gray-200"
+                      
                     >
                       <div className="flex items-center gap-2 text-gray-800 font-medium my-1">
                         <div
@@ -215,14 +226,14 @@ const Selection = () => {
                             isCatOpen ? "text-orange-600" : "text-gray-400"
                           }
                         >
-                          {category.icon}
+                          {item.icon}
                         </div>
                         <span
                           className={
                             isCatOpen ? "text-orange-600" : "text-gray-800"
                           }
                         >
-                          {category.name}
+                          {item.name}
                         </span>
                       </div>
                       <IoIosArrowDown
@@ -239,42 +250,29 @@ const Selection = () => {
                     <AnimatePresence initial={false}>
                       {isCatOpen && (
                         <motion.div
-                          key={`sub-${category.name}`}
+                          key={`sub-${item.name}`}
                           initial="closed"
                           animate="open"
                           exit="closed"
                           variants={dropdownVariants}
                           className="mx-4 my-2 space-y-2 overflow-hidden "
                         >
-                          {category.subcategories.map((item) => {
-                            const isChecked = selected.includes(item.name);
+                          {subcategoriesMap[item._id]?.map((subItem) => {
+                            const isChecked = selected.includes(subItem._id);
                             return (
-                              <div
-                                key={item.name}
-                                className="flex items-center justify-between "
-                              >
+                              <div key={subItem.name} className="flex items-center justify-between">
                                 <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                                   <input
                                     type="checkbox"
                                     checked={isChecked}
-                                    onChange={() => toggleSelect(item.name)}
+                                    onChange={() => toggleSelect(subItem._id)}
                                     className="peer hidden"
                                   />
                                   <span className="w-4 h-4 border border-gray-400 flex items-center justify-center peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-colors duration-200">
-                                    {isChecked && (
-                                      <div>
-                                        <IoIosCheckmark
-                                          size={25}
-                                          className="text-white"
-                                        />
-                                      </div>
-                                    )}
+                                    {isChecked && <IoIosCheckmark size={25} className="text-white" />}
                                   </span>
-                                  <span>{item.name}</span>
+                                  <span>{subItem.name}</span>
                                 </label>
-                                <span className={"text-sm text-gray-500"}>
-                                  {item.count}
-                                </span>
                               </div>
                             );
                           })}
@@ -290,14 +288,14 @@ const Selection = () => {
       </div>
 
       {/* TOOLS */}
-      <div className="w-full py-5 border border-t-0 border-gray-300 ">
+      <div className="w-full  border border-t-0 border-gray-300 ">
         {/* Tools header */}
         <div
           className="flex items-center justify-between mx-4 cursor-pointer"
           onClick={() => setIsToolsOpen((prev) => !prev)}
         >
           <div
-            className={`font-semibold ${
+            className={`font-semibold py-5 ${
               isToolsOpen ? " text-orange-600" : " text-black"
             }`}
           >
@@ -322,7 +320,7 @@ const Selection = () => {
               animate="open"
               exit="closed"
               variants={dropdownVariants}
-              className="mt-3 overflow-hidden"
+              className="overflow-hidden"
             >
               {tools.map((tool, index) => {
                 return (
@@ -334,14 +332,14 @@ const Selection = () => {
                       animate="open"
                       exit="closed"
                       variants={dropdownVariants}
-                      className="mx-4 my-2 space-y-2 overflow-hidden "
+                      className="px-4 py-2 space-y-2 overflow-hidden "
                     >
                       {tool.subcategories.map((item) => {
                         const isChecked = selected.includes(item.name);
                         return (
                           <div
                             key={item.name}
-                            className="flex items-center justify-between "
+                            className="flex items-center justify-between"
                           >
                             <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
                               <input

@@ -1,23 +1,28 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from './Header'
 import { SlPicture } from "react-icons/sl";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FaPlus } from "react-icons/fa6";
+import { AdvanceInfoType, FileData } from '@/types/teacher/courseType';
+import toast from 'react-hot-toast';
+import { uploadService } from '@/services/fileService';
 
 
 type Props = {
   step:string;
   goToNextStep: () => void;
   returnTo: () => void;
+  setData:(value: AdvanceInfoType)=> void;
 };
-const Advanceinformation = ({ step, goToNextStep, returnTo }: Props) => {
+const Advanceinformation = ({ step, goToNextStep, returnTo, setData }: Props) => {
   const [inputsWhatYouWillTeachInThisCourse, setInputsWhatYouWillTeachInThisCourse] = useState<string[]>(Array(4).fill('')) //What you will teach in this course
   const [CourseRequirement,setCourseRequirement] = useState<string[]>(Array(4).fill('')) //Course Requirement
   const [WhoThisCourseIsFor, setWhoThisCourseIsFor]  = useState<string[]>(Array(4).fill('')) //Who This Course Is For
   const [courseMaterial, setCourseMaterial] = useState<string>('');
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File>(); // เก็บไฟล์ที่มาจากอัพโหลด
+  const [processedFile, setProcessedFile] = useState<FileData>(); //เก็บข้อมูลที่ได้มาจาก api
   
-  // + Add input
+  //เพิ่มช่องกรอกข้อมูล
   const handleAddInput = (section: 'teach' | 'requirement' | 'who') => {
     const sectionMap: Record< 'teach' | 'requirement' | 'who', { list: string[]; setter: React.Dispatch<React.SetStateAction<string[]>> }> = {
       teach: { list: inputsWhatYouWillTeachInThisCourse, setter: setInputsWhatYouWillTeachInThisCourse },
@@ -31,7 +36,7 @@ const Advanceinformation = ({ step, goToNextStep, returnTo }: Props) => {
     }
   };
 
-  // update data input
+  // อัพเดทข้อมูล
   const handleInputChange = ( section: 'teach' | 'requirement' | 'who',index: number,value: string) => {
     const sectionMap: Record<'teach' | 'requirement' | 'who',{ list: string[]; setter: React.Dispatch<React.SetStateAction<string[]>> }> = {
       teach: { list: inputsWhatYouWillTeachInThisCourse, setter: setInputsWhatYouWillTeachInThisCourse },
@@ -44,11 +49,13 @@ const Advanceinformation = ({ step, goToNextStep, returnTo }: Props) => {
     updated[index] = value;
     setter(updated);
   };
-    
+  
+  //คำนวนช่องที่กรอก
   const countAllInputs = () => {
     return inputsWhatYouWillTeachInThisCourse.length + CourseRequirement.length + WhoThisCourseIsFor.length + 2;
   };
 
+  //นับช่องที่กรอก
   const countFilledInputs = () => {
     const isNotEmpty = (value: string) => value.trim() !== '';
     const courseMaterialCount = courseMaterial.trim() !== '' ? 1 : 0;
@@ -60,16 +67,45 @@ const Advanceinformation = ({ step, goToNextStep, returnTo }: Props) => {
       WhoThisCourseIsFor.filter(isNotEmpty).length
     );
   };
-
+  
+  //ตรวจไฟล์
   const isFormValid = () => {
     return courseMaterial.trim() !== '' && countFilledInputs() > 0;
   };
 
-  // Handle next step
+  // ไปหหน้าถัดไป
   const handleNextStep = () => {
     if(isFormValid()){
       goToNextStep();
     }
+  };
+
+  //อัพโหลดไฟล์รูป
+  useEffect(()=>{
+    const upload =async()=>{
+      try {
+        if(thumbnailFile){
+          const data = await uploadService(thumbnailFile);
+          setProcessedFile(data.data)
+        }
+      } catch (error: any) {
+        toast.error(error)
+      }
+    }
+    upload();
+  },[thumbnailFile]);
+
+  //ส่งข้อมูลไป parent
+  const handleSendData =()=>{
+    const advanceInfo: AdvanceInfoType ={
+      thumbnailurl:processedFile,
+      coursematerial:courseMaterial,
+      whothiscourseisfor:WhoThisCourseIsFor,
+      coursereq:CourseRequirement,
+      whatyouwillteachincourse:inputsWhatYouWillTeachInThisCourse
+    }
+
+    setData(advanceInfo);
   };
   
   return (
@@ -77,8 +113,8 @@ const Advanceinformation = ({ step, goToNextStep, returnTo }: Props) => {
       <div>
         <Header 
           step={step} 
-          filledCountBasic={countFilledInputs()} 
-          totalInputs={countAllInputs()}
+          filledCountAdvance={countFilledInputs()} 
+          totalInputsAdvance={countAllInputs()}
         />
 
         {/* content */}
@@ -244,7 +280,7 @@ const Advanceinformation = ({ step, goToNextStep, returnTo }: Props) => {
             isFormValid()
             ? "bg-orange-600 hover:bg-orange-700"
             : "bg-gray-300 cursor-not-allowed"
-            }`} onClick={handleNextStep} disabled={!isFormValid()} >
+            }`} onClick={()=>{handleNextStep(), handleSendData()}} disabled={!isFormValid()} >
               Next
           </button>
         </div>

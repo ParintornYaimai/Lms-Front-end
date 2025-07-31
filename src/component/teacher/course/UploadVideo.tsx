@@ -1,13 +1,21 @@
+import { uploadService } from "@/services/fileService";
 import React, { useRef, useState } from "react";
+import toast from "react-hot-toast";
 
+interface FileData {
+  fileId: string;
+  filename: string;
+  fileUrl: string;
+}
 interface UploadVideoProps {
   isOpen: boolean;
   onClose: () => void;
   sectionId: number;
   lectureId: number;
+  onUploadSuccess: (fileData: FileData) => void; 
 }
 
-const UploadVideo: React.FC<UploadVideoProps> = ({ isOpen, onClose }) => {
+const UploadVideo: React.FC<UploadVideoProps> = ({ isOpen, onClose, sectionId, lectureId, onUploadSuccess}) => {
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,11 +32,18 @@ const UploadVideo: React.FC<UploadVideoProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleUpload = () => {
-    if (file) {
-      console.log("Uploading:", file.name);
-      // TODO: handle upload logic here
-      onClose();
+  const handleUpload = async() => {
+    try {
+      if(file){
+        const data = await uploadService(file)
+        if(data.data){
+          alert('Successfully uploaded')
+          onUploadSuccess(data.data)
+          onClose(); 
+        }
+      }
+    } catch (error: any) {
+      toast.error(error)
     }
   };
 

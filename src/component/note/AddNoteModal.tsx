@@ -1,7 +1,12 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { IoIosArrowDown } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
+import { CategoriesResponse, Category } from "@/types/filterType";
+import { getCate } from "@/services/filterService";
+import { createNote } from "@/services/noteServices";
+import toast from 'react-hot-toast'
+
 
 type AddNoteModalProps = {
   isOpen: boolean;
@@ -9,20 +14,56 @@ type AddNoteModalProps = {
 };
 
 const AddNoteModal = ({ isOpen, onClose }: AddNoteModalProps) => {
-  const tagOptions = [
-    { value: "text", label: "Text", color: "bg-blue-100 text-blue-600" },
-    { value: "meeting", label: "Meeting", color: "bg-green-100 text-green-600" },
-    { value: "important", label: "Important", color: "bg-red-100 text-red-600" },
-  ];
-
+  const [cate, SetCate] = useState<Category[]>();
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    comment: "",
-    tag: "text",
+    tag: "",
   });
 
-  const selectedTagObject = tagOptions.find(tag => tag.value === formData.tag);
+  const tagColors: Record<string, string> = {
+    "Business": "bg-purple-100 text-purple-500",
+    "Design": "bg-pink-100 text-pink-500",
+    "Personal Development": "bg-emerald-100 text-emerald-500",
+    "Development": "bg-orange-100 text-orange-500",
+    "Finance & Accounting": "bg-red-100 text-red-500",
+    "Health & Fitness": "bg-green-100 text-green-500",
+    "Language": "bg-fuchsia-100 text-fuchsia-500", 
+    "Marketing": "bg-yellow-100 text-yellow-500",
+    "Music": "bg-gray-100 text-gray-500",
+    "Office Productivity": "bg-amber-100 text-amber-500",
+    "Photography & Video": "bg-blue-100 text-blue-500",
+    "Science & Engineering": "bg-cyan-100 text-cyan-500",
+    "Test Preparation": "bg-lime-100 text-lime-500",
+  };
+  const selectedTagObject = cate?.find(item => item.name === formData.tag);
+
+
+  //fetch Category
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const data: CategoriesResponse = await getCate();
+        const newData = data.data.filter(item=> item.name !== 'ALL')
+        SetCate(newData);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+    fetchCategory();
+  }, []);
+
+  const handleCreateNote = async () => {
+    try {
+      await createNote(formData.title, formData.tag, formData.description);
+      toast.success('Note created successfully!')
+      setFormData({ title: "", description: "", tag: "" });
+      onClose();
+    } catch (error: any) {
+      toast.error('Failed to create note')
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -72,9 +113,9 @@ const AddNoteModal = ({ isOpen, onClose }: AddNoteModalProps) => {
                 <div className="relative">
                   <Listbox.Button className="relative w-1/2 cursor-pointer rounded border border-gray-300 bg-white py-1 pl-2 pr-10 text-left focus:outline-none focus:ring-2 focus:ring-orange-500">
                     <span
-                      className={`inline-block px-2 py-1 rounded-2xl text-sm font-medium ${selectedTagObject?.color}`}
+                       className={`inline-block px-2 py-1 rounded-2xl text-sm font-medium ${ selectedTagObject ? tagColors[selectedTagObject.name] : "bg-gray-300 text-black"}`}
                     >
-                      {selectedTagObject?.label}
+                      {selectedTagObject?.name ?? "Select tag"}
                     </span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400">
                       <IoIosArrowDown />
@@ -82,19 +123,17 @@ const AddNoteModal = ({ isOpen, onClose }: AddNoteModalProps) => {
                   </Listbox.Button>
 
                   <Transition as={Fragment}>
-                    <Listbox.Options className="absolute mt-1 w-full rounded-md bg-white shadow-lg z-10 border border-gray-200 ">
-                      {tagOptions.map((tag) => (
+                    <Listbox.Options className="absolute mt-1 w-1/2 h-64 rounded-md bg-white shadow-lg z-10 border border-gray-200 focus:outline-none overflow-y-auto">
+                      {cate?.map((item) => (
                         <Listbox.Option
-                          key={tag.value}
-                          value={tag.value}
+                          key={item._id}
+                          value={item.name}
                           className={({ active }) =>
-                            `cursor-pointer select-none px-2 py-1 text-sm ${active ? "bg-orange-100" : ""}`
+                            `cursor-pointer select-none px-2 py-1 text-sm  ${active ? "bg-orange-100" : ""}`
                           }
                         >
-                          <span
-                            className={`inline-block px-2 rounded-2xl font-medium ${tag.color}`}
-                          >
-                            {tag.label}
+                          <span className={`inline-block px-2 rounded-2xl text-sm font-medium ${tagColors[item.name] ?? "bg-gray-300 text-black"}`}>
+                            {item.name}
                           </span>
                         </Listbox.Option>
                       ))}
@@ -114,28 +153,15 @@ const AddNoteModal = ({ isOpen, onClose }: AddNoteModalProps) => {
                 className="w-full border border-gray-300 rounded px-3 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
-
-            {/* Comment */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-1">Comment</label>
-              <input
-                type="text"
-                value={formData.comment}
-                onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                placeholder="type here..."
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
-            </div>
-
             {/* Action buttons */}
             <div className="flex justify-between">
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-700"
+                className="px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-700 cursor-pointer"
               >
                 Cancel
               </button>
-              <button className="px-6 py-2 bg-orange-600 text-white rounded-full hover:bg-orange-700">
+              <button className="px-6 py-2 bg-orange-600 text-white rounded-full hover:bg-orange-700 cursor-pointer" onClick={handleCreateNote}>
                 Create Now →
               </button>
             </div>
@@ -143,6 +169,7 @@ const AddNoteModal = ({ isOpen, onClose }: AddNoteModalProps) => {
         </motion.div>
       )}
     </AnimatePresence>
+    
   );
 };
 

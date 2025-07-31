@@ -84,7 +84,7 @@ const page = () => {
           {/* Sign in link */}
           <p className="flex mt-6 text-sm text-center text-gray-700">
             <span className='mr-1'>Already have an account?</span>
-            <Link href="#" className="text-orange-500  hover:text-orange-600">login</Link>
+            <Link href="/auth/login" className="text-orange-500  hover:text-orange-600">login</Link>
           </p>
         </div>
       </div>

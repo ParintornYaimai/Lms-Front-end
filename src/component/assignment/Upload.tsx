@@ -1,11 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTrash } from "react-icons/fa";
 import { IoWarningOutline } from "react-icons/io5";
+import toast from "react-hot-toast";
+import { uploadService } from "@/services/fileService";
+import { UploadResponse } from "@/types/teacher/courseType";
+import { ResponseUploadFileAssignment } from "@/types/assignment";
 
 type UploadProps = {
   onClose: () => void;
+  onFileChange: (data: ResponseUploadFileAssignment[]) => void;
 };
 
 const backdropVariants = {
@@ -19,8 +24,8 @@ const modalVariants = {
   exit: { opacity: 0, y: 50, scale: 0.8 },
 };
 
-const Upload: React.FC<UploadProps> = ({ onClose }) => {
-  const [files, setFiles] = useState<File[]>([]);
+const Upload: React.FC<UploadProps> = ({ onClose, onFileChange }) => {
+  const [file, setFile] = useState<File[]>([]);
   const [showModal, setShowModal] = useState(false);
 
   // ฟังก์ชันปิด modal แบบ animate แล้วค่อย onClose จริง
@@ -34,27 +39,36 @@ const Upload: React.FC<UploadProps> = ({ onClose }) => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const newFiles = Array.from(e.dataTransfer.files);
-    setFiles((prev) => [...prev, ...newFiles]);
+    setFile((prev) => [...prev, ...newFiles]);
+
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    setFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
+    setFile((prev) => [...prev, ...Array.from(selectedFiles)]);
   };
 
   const handleRemove = (index: number) => {
-    const updated = [...files];
+    const updated = [...file];
     updated.splice(index, 1);
-    setFiles(updated);
+    setFile(updated);
   };
 
-  const handleUpload = () => {
-    alert("Uploading files...");
-    setFiles([]);
-    setShowModal(false);
-    onClose();
+  const handleUpload = async () => {
+    try {
+      const data: UploadResponse = await uploadService(file);
+      if (data.success) {
+        alert("uploaded successfully");
+        setFile([]);
+        setShowModal(false);
+        onClose();
+        onFileChange([data.data]);
+      }
+    } catch (error: any) {
+      toast.error(error);
+    }
   };
 
   return (
@@ -108,7 +122,7 @@ const Upload: React.FC<UploadProps> = ({ onClose }) => {
 
             {/* File List */}
             <div className="mt-4 max-h-40 overflow-y-auto space-y-2">
-              {files.map((file, index) => (
+              {file.map((file, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between px-3 py-2 border border-orange-600 rounded-md"
@@ -130,9 +144,9 @@ const Upload: React.FC<UploadProps> = ({ onClose }) => {
             <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setShowModal(true)}
-                disabled={files.length === 0}
+                disabled={file.length === 0}
                 className={`px-4 py-2 rounded-md font-semibold w-full cursor-pointer ${
-                  files.length === 0
+                  file.length === 0
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-orange-600 text-white hover:bg-orange-700"
                 }`}

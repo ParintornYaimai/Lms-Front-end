@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
+import { publishInfoType } from "@/types/teacher/courseType";
 
 type Props = {
   step: string;
+  returnTo: () => void;
+  setData:(value: publishInfoType)=> void;
+  handleCreateCourse: ()=> void;
 };
 
-const PublishCourse = ({ step }: Props) => {
-  const [welcomeMessage, setWelcomeMessage] = useState("");
-  const [congratsMessage, setCongratsMessage] = useState("");
+const PublishCourse = ({ step, returnTo, setData, handleCreateCourse}: Props) => {
+  const [welcomeMessage, setWelcomeMessage] = useState<string>("");
+  const [congratsMessage, setCongratsMessage] = useState<string>("");
+  const [filledCount, setFilledCount] = useState<number>(0);
+  const [totalInputs, setTotalInputs] = useState<number>(0);
 
   const isFormValid = () => {
     return welcomeMessage.trim() !== "" && congratsMessage.trim() !== "";
@@ -20,15 +26,32 @@ const PublishCourse = ({ step }: Props) => {
     }
   };
 
-  const returnTo = () => {
-    // ใส่ logic สำหรับการกลับหน้าเดิม เช่น navigate(-1) หรือ callback
-    console.log("Cancelled");
-  };
+
+  useEffect(() => {
+    const total = 2;
+    let filled = 0;
+
+    if (welcomeMessage.trim() !== "") filled += 1;
+    if (congratsMessage.trim() !== "") filled += 1;
+
+    setFilledCount(filled);
+    setTotalInputs(total);
+  }, [welcomeMessage, congratsMessage]);
+
+  const handleSendData =()=>{
+    const publishInfo:publishInfoType = {
+      welmsg: welcomeMessage,
+      conmsg: congratsMessage
+    }
+
+    
+    setData(publishInfo)
+  }
 
   return (
     <div>
       <div className="xl:min-h-[715px] 2xl:min-h-[880px]">
-        <Header step={step} filledCountBasic={0} totalInputs={0} />
+        <Header step={step} filledCountpublish={filledCount} totalInputspublish={totalInputs} />
         <div className="xl:min-h-[630px] 2xl:min-h-[800px] mx-5 flex flex-col justify-between">
           <div>
             <h2 className="text-lg font-semibold mt-8 mb-4">Message</h2>
@@ -74,7 +97,7 @@ const PublishCourse = ({ step }: Props) => {
                   ? "bg-orange-600 hover:bg-orange-700"
                   : "bg-gray-300 cursor-not-allowed"
               }`}
-              onClick={handleNextStep}
+              onClick={()=>{handleSendData(), handleCreateCourse()}}
               disabled={!isFormValid()}
             >
               Submit

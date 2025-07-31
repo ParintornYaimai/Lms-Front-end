@@ -4,13 +4,50 @@ import Basicinformation from "@/component/teacher/course/Basicinformation";
 import CourseCard from "@/component/teacher/course/CourseCard";
 import Curriculum from "@/component/teacher/course/Curriculum";
 import PublishCourse from "@/component/teacher/course/PublishCourse";
-import React, { useState } from "react";
+import { createCourse, getAllCourse } from "@/services/teacher/courseService";
+import { AdvanceInfoType, BasicInfoType, CourseItem, CurriculumInfoType, publishInfoType, } from "@/types/teacher/courseType";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [isActive, setIsActive] = useState("Scheduled Course");
   const [step, setStep] = useState<
     "none" | "basic" | "advance" | "curriculum" | "publish"
-  >("curriculum");
+  >("none");
+  const [basic, setBasic] = useState<BasicInfoType>();
+  const [advance, setAdvance] = useState<AdvanceInfoType>();
+  const [curriculum, setCurriculum] = useState<CurriculumInfoType>();
+  const [publish, setPublish] = useState<publishInfoType>();
+  const [allCourse, setAllCourse] = useState<CourseItem[]>()
+
+  // สร้างคอส
+  const handleCreateCourse = async() => {
+    const combinedData = { ...basic, ...advance, ...curriculum, ...publish };
+    try {
+      const data = await createCourse(combinedData);
+
+      if(data.success){
+        alert('created successfully')
+      }
+    } catch (error: any) {
+      toast.error(error)
+    }
+    
+  };
+
+  useEffect(()=>{
+    const fetchAllCourse=async()=>{
+      try{
+        const response = await getAllCourse();
+
+        setAllCourse(response.data)
+      }catch(error:any){
+        toast.error(error)
+      }
+    }
+
+    fetchAllCourse()
+  },[])
 
   return (
     <>
@@ -48,16 +85,7 @@ const Page = () => {
           </div>
           <div className="lg:mx-2 lg:my-5 2xl:m-5">
             <div className="grid 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 xl:gap-2 2xl:gap-3">
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
-              <CourseCard />
+              <CourseCard allCourse={allCourse}/>
             </div>
           </div>
         </div>
@@ -67,6 +95,7 @@ const Page = () => {
           step={step}
           goToNextStep={() => setStep("advance")}
           returnTo={() => setStep("none")}
+          setData={(value: BasicInfoType) =>setBasic(value)}
         />
       )}
       {step === "advance" && (
@@ -74,6 +103,7 @@ const Page = () => {
           goToNextStep={() => setStep("curriculum")}
           step={step}
           returnTo={() => setStep("basic")}
+          setData={(value: AdvanceInfoType) =>setAdvance(value)}
         />
       )}
       {step === "curriculum" && (
@@ -81,9 +111,17 @@ const Page = () => {
           goToNextStep={() => setStep("publish")}
           step={step}
           returnTo={() => setStep("advance")}
+          setData={(value: CurriculumInfoType) =>setCurriculum(value)}
         />
       )}
-      {step === "publish" && <PublishCourse step={step} />}
+      {step === "publish" && (
+        <PublishCourse
+          step={step}
+          returnTo={() => setStep("curriculum")}
+          setData={(value: publishInfoType) =>setPublish(value)}
+          handleCreateCourse={handleCreateCourse}
+        />
+      )}
     </>
   );
 };

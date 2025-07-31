@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { shouldHideTopNavbar } from '@/utils';
 import Navbar from '../component/topnavbar';
 import Sidebar from '../component/sidebar';
+import ToastProvider from './toast';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -14,6 +15,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }
 
   return (
+    
     <div >
       {/* Navbar */}
       <div className="sticky top-0 z-50">
@@ -31,6 +33,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           {children}
         </div>
       </div>
+      <ToastProvider />
     </div>
   );
 }

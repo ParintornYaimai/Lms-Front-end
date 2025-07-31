@@ -4,12 +4,13 @@ import { FiFilter } from "react-icons/fi";
 type SortByProps = {
   isOpen: boolean;
   onClose: () => void;
+  setSortBy: (value: string) => void;
 };
 
-const SortBy = ({ isOpen, onClose }: SortByProps) => {
+const SortBy = ({ isOpen, onClose, setSortBy }: SortByProps) => {
   const [selected, setSelected] = useState("ALL");
 
-  const options = ["ALL", "This week", "This month", "This year", "Set up"];
+  const options = ["ALL", "This week", "This month", "This year"];
 
   if (!isOpen) return null; // ถ้ายังไม่เปิด ให้ไม่ render เลย
 
@@ -22,7 +23,8 @@ const SortBy = ({ isOpen, onClose }: SortByProps) => {
             <button
               onClick={() => {
                 setSelected(option);
-                onClose(); // ปิดหลังเลือก
+                onClose();
+                setSortBy(option) // ปิดหลังเลือก
               }}
               className={`flex items-center w-full px-4 py-2 text-sm ${
                 selected === option
